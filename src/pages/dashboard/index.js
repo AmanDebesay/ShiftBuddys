@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { LogOut, Settings, Calendar, Users, MessageSquare, MapPin, ChevronRight, Sun, Moon, RefreshCw } from 'lucide-react'
+import {
+  LogOut, Calendar, Users, MessageSquare, MapPin, ChevronRight,
+  Sun, Moon, RefreshCw, DollarSign, Heart, Home, ArrowLeftRight,
+} from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 
@@ -41,6 +44,19 @@ function getRotationStatus(startDateStr, pattern) {
   }
 }
 
+function ComingSoonTile({ icon: Icon, label, sub, iconBg, iconBorder, iconColor }) {
+  return (
+    <div className="glass rounded-2xl p-5 border border-white/8">
+      <div className={`w-10 h-10 rounded-xl ${iconBg} ${iconBorder} border flex items-center justify-center mb-3`}>
+        <Icon size={18} className={iconColor} />
+      </div>
+      <p className="font-heading font-semibold text-white text-sm">{label}</p>
+      <p className="font-body text-white/25 text-xs mt-1">{sub}</p>
+      <span className="inline-block mt-2 text-xs font-heading text-white/20 bg-white/5 px-2 py-0.5 rounded-full">Coming soon</span>
+    </div>
+  )
+}
+
 export default function Dashboard() {
   const router = useRouter()
   const { user, loading } = useAuth()
@@ -48,10 +64,7 @@ export default function Dashboard() {
   const [profileLoading, setProfileLoading] = useState(true)
 
   useEffect(() => {
-    if (!loading && !user) {
-      router.replace('/login')
-      return
-    }
+    if (!loading && !user) { router.replace('/login'); return }
     if (user) {
       supabase.from('profiles').select('*').eq('id', user.id).single()
         .then(({ data }) => {
@@ -83,12 +96,16 @@ export default function Dashboard() {
   const status = getRotationStatus(profile.rotation_start_date, profile.rotation_pattern)
   const displayName = profile.name || user.user_metadata?.name || user.email?.split('@')[0] || 'Worker'
   const firstName = displayName.split(' ')[0]
+  const dateStr = new Date().toLocaleDateString('en-CA', {
+    timeZone: 'America/Edmonton',
+    weekday: 'long', month: 'long', day: 'numeric',
+  })
 
-  const dateStr = new Date().toLocaleDateString('en-CA', { weekday: 'long', month: 'long', day: 'numeric' })
+  const isHalfway = status && status.dayNumber === Math.ceil(status.totalDays / 2)
+  const isComingHome = status && status.phase === 'ON_SHIFT' && status.daysRemaining <= 2
 
   return (
     <div className="min-h-screen">
-      {/* Top nav */}
       <nav className="border-b border-white/8 px-4 py-3.5">
         <div className="max-w-lg mx-auto flex items-center justify-between">
           <img src="/images/logo.svg" alt="ShiftBuddys" className="h-8 w-auto" />
@@ -116,6 +133,21 @@ export default function Dashboard() {
           </h1>
         </div>
 
+        {/* Coming Home Mode — auto-activates within 48 hrs of rotation end */}
+        {isComingHome && (
+          <div className="rounded-2xl p-5 border border-yellow-400/40 bg-yellow-500/10">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">🏠</span>
+              <div>
+                <p className="font-heading font-bold text-yellow-300 text-sm">Coming Home Mode — Active</p>
+                <p className="font-body text-yellow-200/60 text-xs mt-0.5">
+                  {status.daysRemaining === 1 ? 'Tomorrow is your last day on shift.' : 'You go home in 2 days.'} Tell your family.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Main rotation card */}
         {status ? (
           <div className={`rounded-3xl p-7 border ${
@@ -123,7 +155,6 @@ export default function Dashboard() {
               ? 'border-orange-500/30 bg-gradient-to-br from-orange-600/15 via-orange-900/5 to-transparent'
               : 'border-blue-400/30 bg-gradient-to-br from-blue-600/15 via-blue-900/5 to-transparent'
           }`}>
-            {/* Status badge + day label */}
             <div className="flex items-start justify-between mb-6">
               <div>
                 <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-heading font-semibold uppercase tracking-wider mb-3 ${
@@ -138,8 +169,6 @@ export default function Dashboard() {
                   Day {status.dayNumber} of {status.totalDays}
                 </p>
               </div>
-
-              {/* Big countdown number */}
               <div className="text-right">
                 <p className="font-display text-7xl text-white leading-none">{status.daysRemaining}</p>
                 <p className="font-body text-white/45 text-sm mt-1">
@@ -149,7 +178,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {/* Progress bar */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-body text-white/35">
                 <span>{status.phase === 'ON_SHIFT' ? 'Shift start' : 'Home start'}</span>
@@ -167,6 +195,15 @@ export default function Dashboard() {
                 {profile.rotation_pattern} rotation
               </p>
             </div>
+
+            {/* Halfway milestone */}
+            {isHalfway && (
+              <div className="mt-4 pt-4 border-t border-white/10 text-center">
+                <p className="font-heading font-semibold text-yellow-300 text-sm">
+                  💪 Halfway there — {status.daysRemaining} days to go!
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           <div className="glass rounded-3xl p-8 border border-white/8 text-center">
@@ -177,9 +214,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Feature tiles */}
+        {/* Core features */}
         <div>
-          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Features</p>
+          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Your Tools</p>
           <div className="grid grid-cols-2 gap-3">
             <Link href="/dashboard/calendar" className="glass rounded-2xl p-5 border border-orange-500/20 hover:border-orange-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center mb-3">
@@ -188,20 +225,10 @@ export default function Dashboard() {
               <p className="font-heading font-semibold text-white text-sm">Shift Calendar</p>
               <p className="font-body text-orange-400/60 text-xs mt-1">View your rotation →</p>
             </Link>
-            <div className="glass rounded-2xl p-5 border border-white/8">
-              <div className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center mb-3">
-                <Users size={18} className="text-pink-400" />
-              </div>
-              <p className="font-heading font-semibold text-white text-sm">Family Sync</p>
-              <p className="font-body text-white/30 text-xs mt-1">Shared calendar</p>
-            </div>
-            <div className="glass rounded-2xl p-5 border border-white/8">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 border border-purple-500/30 flex items-center justify-center mb-3">
-                <MessageSquare size={18} className="text-purple-400" />
-              </div>
-              <p className="font-heading font-semibold text-white text-sm">Crew Chat</p>
-              <p className="font-body text-white/30 text-xs mt-1">Your crew network</p>
-            </div>
+
+            <ComingSoonTile icon={Users}         label="Family Sync"      sub="Shared calendar"      iconBg="bg-pink-500/15"   iconBorder="border-pink-500/30"   iconColor="text-pink-400" />
+            <ComingSoonTile icon={MessageSquare} label="Crew Chat"        sub="Your crew network"    iconBg="bg-purple-500/15" iconBorder="border-purple-500/30" iconColor="text-purple-400" />
+
             <Link href="/dashboard/fort-mac" className="glass rounded-2xl p-5 border border-green-500/20 hover:border-green-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-green-500/15 border border-green-500/30 flex items-center justify-center mb-3">
                 <MapPin size={18} className="text-green-400" />
@@ -212,7 +239,18 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Rotation info row */}
+        {/* Coming soon — critical modules */}
+        <div>
+          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Coming Next</p>
+          <div className="grid grid-cols-2 gap-3">
+            <ComingSoonTile icon={DollarSign}    label="Money Manager"       sub="Paycheck · RRSP · Budget"  iconBg="bg-yellow-500/15" iconBorder="border-yellow-500/30" iconColor="text-yellow-400" />
+            <ComingSoonTile icon={Heart}         label="Wellbeing"           sub="Mood · Sleep · Support"    iconBg="bg-rose-500/15"   iconBorder="border-rose-500/30"   iconColor="text-rose-400" />
+            <ComingSoonTile icon={Home}          label="Coming Home Mode"    sub="48-hr reintegration"       iconBg="bg-teal-500/15"   iconBorder="border-teal-500/30"   iconColor="text-teal-400" />
+            <ComingSoonTile icon={ArrowLeftRight} label="Shift Swap"         sub="Post · Find · Confirm"     iconBg="bg-indigo-500/15" iconBorder="border-indigo-500/30" iconColor="text-indigo-400" />
+          </div>
+        </div>
+
+        {/* Rotation info */}
         <div className="glass rounded-2xl px-5 py-4 border border-white/8 flex items-center justify-between">
           <div>
             <p className="font-heading font-semibold text-white text-sm">Rotation Setup</p>

@@ -1,9 +1,11 @@
-// Fort McMurray RSS feeds — server-side to avoid CORS
+// Server-side RSS proxy — avoids CORS, aggregates Fort McMurray local news
 const FEEDS = [
-  { name: 'Fort McMurray Today', url: 'https://www.fortmcmurraytoday.com/feed/' },
-  { name: 'MyMcMurray (Mix 103.7)', url: 'https://mymcmurray.com/feed/' },
-  { name: 'CBC Northern Alberta', url: 'https://www.cbc.ca/cmlink/rss-canada-edmonton' },
-  { name: 'Wood Buffalo (RMWB)', url: 'https://www.rmwb.ca/en/news.xml' },
+  { name: 'Fort McMurray Today',       url: 'https://www.fortmcmurraytoday.com/feed/' },
+  { name: 'MyMcMurray (Mix 103.7)',    url: 'https://mymcmurray.com/feed/' },
+  { name: 'CBC Northern Alberta',      url: 'https://www.cbc.ca/cmlink/rss-canada-edmonton' },
+  { name: 'RMWB — Wood Buffalo',       url: 'https://www.rmwb.ca/en/news.xml' },
+  { name: 'Alberta Gov News',          url: 'https://www.alberta.ca/news.cfm?rss=true' },
+  { name: '🚨 Alberta Alerts',        url: 'https://www.alertable.ca/en/rss/AB' },
 ]
 
 function parseRSS(xml) {
@@ -13,7 +15,8 @@ function parseRSS(xml) {
   while ((match = regex.exec(xml)) !== null) {
     const item = match[1]
     const title = item.match(/<title>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/title>/)?.[1]
-      ?.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#8217;/g, "'").replace(/&#8230;/g, '…').replace(/<[^>]+>/g, '').trim()
+      ?.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#8217;/g, "'")
+      .replace(/&#8230;/g, '…').replace(/&#8211;/g, '–').replace(/<[^>]+>/g, '').trim()
     const link = item.match(/<link>(https?:\/\/[^<\s]+)<\/link>/)?.[1]?.trim()
       || item.match(/<link[^>]+href="(https?:\/\/[^"]+)"/)?.[1]?.trim()
       || item.match(/<guid[^>]*>(https?:\/\/[^<]+)<\/guid>/)?.[1]?.trim()
