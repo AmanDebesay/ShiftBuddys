@@ -202,13 +202,13 @@ export default function Dashboard() {
               <p className="font-heading font-semibold text-white text-sm">Crew Chat</p>
               <p className="font-body text-white/30 text-xs mt-1">Your crew network</p>
             </div>
-            <div className="glass rounded-2xl p-5 border border-white/8">
+            <Link href="/dashboard/fort-mac" className="glass rounded-2xl p-5 border border-green-500/20 hover:border-green-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-green-500/15 border border-green-500/30 flex items-center justify-center mb-3">
                 <MapPin size={18} className="text-green-400" />
               </div>
               <p className="font-heading font-semibold text-white text-sm">Fort Mac Life</p>
-              <p className="font-body text-white/30 text-xs mt-1">Weather &amp; events</p>
-            </div>
+              <p className="font-body text-green-400/60 text-xs mt-1">Weather &amp; news →</p>
+            </Link>
           </div>
         </div>
 
