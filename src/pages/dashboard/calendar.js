@@ -39,6 +39,7 @@ export default function CalendarPage() {
   const [externalEvents, setExternalEvents] = useState({})
   const [eventsLoading, setEventsLoading] = useState(false)
   const [calErrors, setCalErrors] = useState({})
+  const [calSynced, setCalSynced] = useState({})
   const [showConnect, setShowConnect] = useState(false)
   const [newCal, setNewCal] = useState({ name: '', url: '', color: '#60a5fa' })
   const [savingCal, setSavingCal] = useState(false)
@@ -65,11 +66,13 @@ export default function CalendarPage() {
     const to   = new Date(year, month + 1, 0).toISOString().split('T')[0]
     const merged = {}
     const errors = {}
+    const synced = {}
     await Promise.allSettled(calUrls.map(async cal => {
       try {
         const res  = await fetch(`/api/ics-events?${new URLSearchParams({ url: cal.url, from, to })}`)
         const data = await res.json()
         if (data.error) { errors[cal.id] = data.error; return }
+        synced[cal.id] = true
         for (const ev of (data.events || [])) {
           if (!merged[ev.date]) merged[ev.date] = []
           merged[ev.date].push({ summary: ev.summary, calName: cal.name, color: cal.color, calId: cal.id })
@@ -80,6 +83,7 @@ export default function CalendarPage() {
     }))
     setExternalEvents(merged)
     setCalErrors(errors)
+    setCalSynced(synced)
     setEventsLoading(false)
   }, [])
 
@@ -335,11 +339,12 @@ export default function CalendarPage() {
                 const hasError = !!calErrors[cal.id]
                 const count = calCounts[cal.id]
                 const isSyncing = eventsLoading
+                const wasSynced = calSynced[cal.id]
                 return (
                   <div key={cal.id} className={`glass rounded-xl px-4 py-3 border flex items-center justify-between ${hasError ? 'border-red-500/20' : 'border-white/8'}`}>
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
                       <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cal.color }} />
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <p className="font-heading font-medium text-white text-sm">{cal.name}</p>
                         {isSyncing ? (
                           <p className="font-body text-white/25 text-xs mt-0.5">Syncing…</p>
@@ -348,11 +353,13 @@ export default function CalendarPage() {
                             <AlertCircle size={11} className="text-red-400 flex-shrink-0" />
                             <p className="font-body text-red-400/80 text-xs truncate">{calErrors[cal.id]}</p>
                           </div>
-                        ) : count !== undefined ? (
-                          <p className="font-body text-white/30 text-xs mt-0.5">
-                            {count === 0 ? 'No events this month' : `${count} event${count !== 1 ? 's' : ''} this month`}
+                        ) : wasSynced ? (
+                          <p className={`font-body text-xs mt-0.5 ${count > 0 ? 'text-green-400/70' : 'text-white/25'}`}>
+                            {count > 0 ? `✓ ${count} event${count !== 1 ? 's' : ''} in ${new Date(viewYear, viewMonth).toLocaleDateString('en-CA', { month: 'long' })}` : `No events found in ${new Date(viewYear, viewMonth).toLocaleDateString('en-CA', { month: 'long' })}`}
                           </p>
-                        ) : null}
+                        ) : (
+                          <p className="font-body text-white/20 text-xs mt-0.5">Not yet synced — tap Refresh</p>
+                        )}
                       </div>
                     </div>
                     <button onClick={() => handleRemoveCalendar(cal.id)}
