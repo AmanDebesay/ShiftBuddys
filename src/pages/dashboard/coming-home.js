@@ -176,7 +176,7 @@ export default function ComingHome() {
               ))}
             </div>
             <p className="font-body text-yellow-200/50 text-xs text-center mt-4">
-              {status.daysRemaining === 1 ? 'Last shift day — you've got this.' : 'Two more days and you're done.'}
+              {status.daysRemaining === 1 ? "Last shift day — you've got this." : "Two more days and you're done."}
             </p>
           </div>
         )}
