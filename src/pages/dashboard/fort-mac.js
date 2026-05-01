@@ -37,10 +37,10 @@ const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const SOCIAL_LINKS = [
   { label: 'Fort McMurray Today',        icon: '📰', url: 'https://www.fortmcmurraytoday.com', color: 'text-orange-400' },
   { label: 'RMWB Official',              icon: '🏛️', url: 'https://www.rmwb.ca', color: 'text-blue-400' },
-  { label: 'Mix 103.7 MyMcMurray',       icon: '📻', url: 'https://mymcmurray.com', color: 'text-purple-400' },
+  { label: 'Play 103.7 (Fort Mac Radio)',icon: '📻', url: 'https://www.play103.ca', color: 'text-purple-400' },
   { label: 'r/FortMcMurray',             icon: '💬', url: 'https://www.reddit.com/r/FortMcMurray/', color: 'text-orange-300' },
-  { label: 'YMM Community (Facebook)',   icon: '👥', url: 'https://www.facebook.com/groups/fortmcmurraycommunity', color: 'text-blue-300' },
-  { label: 'Fort Mac Today YouTube',     icon: '▶️', url: 'https://www.youtube.com/@fortmcmurraytoday', color: 'text-red-400' },
+  { label: 'YMM Community (Facebook)',   icon: '👥', url: 'https://www.facebook.com/groups/161094274568575/', color: 'text-blue-300' },
+  { label: 'Mac City Morning Show',      icon: '▶️', url: 'https://www.youtube.com/@maccitymorningshow', color: 'text-red-400' },
   { label: 'CBC Fort McMurray',          icon: '📺', url: 'https://www.cbc.ca/news/canada/edmonton', color: 'text-green-400' },
   { label: 'Alberta Emergency Alerts',  icon: '🚨', url: 'https://www.alberta.ca/emergency-alerts', color: 'text-red-300' },
 ]

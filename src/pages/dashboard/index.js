@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import {
   LogOut, Calendar, Users, MessageSquare, MapPin, ChevronRight,
-  Sun, Moon, RefreshCw, DollarSign, Heart, Home, ArrowLeftRight,
+  Sun, Moon, RefreshCw, DollarSign, Heart, Home, ArrowLeftRight, Bot,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -226,9 +226,13 @@ export default function Dashboard() {
               <p className="font-body text-orange-400/60 text-xs mt-1">View your rotation →</p>
             </Link>
 
-            <ComingSoonTile icon={Users}         label="Family Sync"      sub="Shared calendar"      iconBg="bg-pink-500/15"   iconBorder="border-pink-500/30"   iconColor="text-pink-400" />
-            <ComingSoonTile icon={MessageSquare} label="Crew Chat"        sub="Your crew network"    iconBg="bg-purple-500/15" iconBorder="border-purple-500/30" iconColor="text-purple-400" />
-
+            <Link href="/dashboard/family" className="glass rounded-2xl p-5 border border-pink-500/20 hover:border-pink-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center mb-3">
+                <Users size={18} className="text-pink-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">Family Sync</p>
+              <p className="font-body text-pink-400/60 text-xs mt-1">Share your rotation →</p>
+            </Link>
             <Link href="/dashboard/fort-mac" className="glass rounded-2xl p-5 border border-green-500/20 hover:border-green-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-green-500/15 border border-green-500/30 flex items-center justify-center mb-3">
                 <MapPin size={18} className="text-green-400" />
@@ -239,11 +243,17 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Coming soon — critical modules */}
+        {/* All modules */}
         <div>
-          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Coming Next</p>
+          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">More Tools</p>
           <div className="grid grid-cols-2 gap-3">
-            <ComingSoonTile icon={DollarSign}    label="Money Manager"       sub="Paycheck · RRSP · Budget"  iconBg="bg-yellow-500/15" iconBorder="border-yellow-500/30" iconColor="text-yellow-400" />
+            <Link href="/dashboard/money" className="glass rounded-2xl p-5 border border-yellow-500/20 hover:border-yellow-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-yellow-500/15 border border-yellow-500/30 flex items-center justify-center mb-3">
+                <DollarSign size={18} className="text-yellow-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">Money Manager</p>
+              <p className="font-body text-yellow-400/60 text-xs mt-1">Paycheck &amp; savings →</p>
+            </Link>
             <Link href="/dashboard/wellbeing" className="glass rounded-2xl p-5 border border-rose-500/20 hover:border-rose-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center mb-3">
                 <Heart size={18} className="text-rose-400" />
@@ -251,8 +261,22 @@ export default function Dashboard() {
               <p className="font-heading font-semibold text-white text-sm">Wellbeing</p>
               <p className="font-body text-rose-400/60 text-xs mt-1">Check in today →</p>
             </Link>
-            <ComingSoonTile icon={Home}          label="Coming Home Mode"    sub="48-hr reintegration"       iconBg="bg-teal-500/15"   iconBorder="border-teal-500/30"   iconColor="text-teal-400" />
+            <Link href="/dashboard/coming-home" className="glass rounded-2xl p-5 border border-teal-500/20 hover:border-teal-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-teal-500/15 border border-teal-500/30 flex items-center justify-center mb-3">
+                <Home size={18} className="text-teal-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">Coming Home</p>
+              <p className="font-body text-teal-400/60 text-xs mt-1">48-hr guide →</p>
+            </Link>
+            <Link href="/dashboard/ai" className="glass rounded-2xl p-5 border border-orange-500/20 hover:border-orange-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center mb-3">
+                <Bot size={18} className="text-orange-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">AI Assistant</p>
+              <p className="font-body text-orange-400/60 text-xs mt-1">Ask anything →</p>
+            </Link>
             <ComingSoonTile icon={ArrowLeftRight} label="Shift Swap"         sub="Post · Find · Confirm"     iconBg="bg-indigo-500/15" iconBorder="border-indigo-500/30" iconColor="text-indigo-400" />
+            <ComingSoonTile icon={MessageSquare} label="Crew Chat"           sub="Coming soon"               iconBg="bg-purple-500/15" iconBorder="border-purple-500/30" iconColor="text-purple-400" />
           </div>
         </div>
 
