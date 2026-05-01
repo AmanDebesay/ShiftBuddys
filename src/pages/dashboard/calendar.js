@@ -43,6 +43,8 @@ export default function CalendarPage() {
   const [newCal, setNewCal] = useState({ name: '', url: '', color: '#60a5fa' })
   const [savingCal, setSavingCal] = useState(false)
   const [calError, setCalError] = useState('')
+  const [testResult, setTestResult] = useState(null)
+  const [testLoading, setTestLoading] = useState(false)
 
   useEffect(() => {
     if (!loading && !user) { router.replace('/login'); return }
@@ -70,7 +72,7 @@ export default function CalendarPage() {
         if (data.error) { errors[cal.id] = data.error; return }
         for (const ev of (data.events || [])) {
           if (!merged[ev.date]) merged[ev.date] = []
-          merged[ev.date].push({ summary: ev.summary, calName: cal.name, color: cal.color })
+          merged[ev.date].push({ summary: ev.summary, calName: cal.name, color: cal.color, calId: cal.id })
         }
       } catch (e) {
         errors[cal.id] = 'Could not reach calendar'
@@ -88,6 +90,23 @@ export default function CalendarPage() {
   const prevMonth = () => viewMonth === 0 ? (setViewYear(y => y - 1), setViewMonth(11)) : setViewMonth(m => m - 1)
   const nextMonth = () => viewMonth === 11 ? (setViewYear(y => y + 1), setViewMonth(0)) : setViewMonth(m => m + 1)
 
+  const handleTestUrl = async () => {
+    if (!newCal.url) return
+    setTestLoading(true); setTestResult(null)
+    const url = newCal.url.trim().replace(/^webcal:\/\//i, 'https://')
+    const from = new Date(viewYear, viewMonth, 1).toISOString().split('T')[0]
+    const to   = new Date(viewYear, viewMonth + 1, 0).toISOString().split('T')[0]
+    try {
+      const res  = await fetch(`/api/ics-events?${new URLSearchParams({ url, from, to })}`)
+      const data = await res.json()
+      if (data.error) setTestResult({ ok: false, msg: data.error + (data.detail ? ` (${data.detail})` : '') })
+      else setTestResult({ ok: true, msg: `Found ${data.events.length} event${data.events.length !== 1 ? 's' : ''} in ${new Date(viewYear, viewMonth).toLocaleDateString('en-CA', { month: 'long' })}` })
+    } catch {
+      setTestResult({ ok: false, msg: 'Could not reach the calendar URL' })
+    }
+    setTestLoading(false)
+  }
+
   const handleAddCalendar = async () => {
     if (!newCal.name || !newCal.url) return
     // Normalize webcal:// → https://
@@ -104,6 +123,7 @@ export default function CalendarPage() {
     else {
       setProfile(p => ({ ...p, calendar_urls: updated }))
       setNewCal({ name: '', url: '', color: '#60a5fa' })
+      setTestResult(null)
       setShowConnect(false); setSavingCal(false)
     }
   }
@@ -128,6 +148,17 @@ export default function CalendarPage() {
     }
     return map
   }, [holidays])
+
+  // Count events per calendar for the current month view
+  const calCounts = useMemo(() => {
+    const counts = {}
+    for (const evList of Object.values(externalEvents)) {
+      for (const ev of evList) {
+        if (ev.calId) counts[ev.calId] = (counts[ev.calId] || 0) + 1
+      }
+    }
+    return counts
+  }, [externalEvents])
 
   if (loading || profileLoading) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -302,18 +333,26 @@ export default function CalendarPage() {
             <div className="space-y-2">
               {profile.calendar_urls.map(cal => {
                 const hasError = !!calErrors[cal.id]
+                const count = calCounts[cal.id]
+                const isSyncing = eventsLoading
                 return (
                   <div key={cal.id} className={`glass rounded-xl px-4 py-3 border flex items-center justify-between ${hasError ? 'border-red-500/20' : 'border-white/8'}`}>
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cal.color }} />
                       <div className="min-w-0">
                         <p className="font-heading font-medium text-white text-sm">{cal.name}</p>
-                        {hasError && (
+                        {isSyncing ? (
+                          <p className="font-body text-white/25 text-xs mt-0.5">Syncing…</p>
+                        ) : hasError ? (
                           <div className="flex items-center gap-1 mt-0.5">
                             <AlertCircle size={11} className="text-red-400 flex-shrink-0" />
                             <p className="font-body text-red-400/80 text-xs truncate">{calErrors[cal.id]}</p>
                           </div>
-                        )}
+                        ) : count !== undefined ? (
+                          <p className="font-body text-white/30 text-xs mt-0.5">
+                            {count === 0 ? 'No events this month' : `${count} event${count !== 1 ? 's' : ''} this month`}
+                          </p>
+                        ) : null}
                       </div>
                     </div>
                     <button onClick={() => handleRemoveCalendar(cal.id)}
@@ -368,8 +407,21 @@ export default function CalendarPage() {
             <div>
               <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-1.5">ICS URL</label>
               <input type="url" placeholder="https://calendar.google.com/calendar/ical/..."
-                value={newCal.url} onChange={e => setNewCal(p => ({ ...p, url: e.target.value }))}
+                value={newCal.url} onChange={e => { setNewCal(p => ({ ...p, url: e.target.value })); setTestResult(null) }}
                 className="input-field" />
+              {newCal.url && (
+                <div className="mt-2 flex items-center gap-2">
+                  <button onClick={handleTestUrl} disabled={testLoading}
+                    className="text-xs font-heading font-medium px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/50 hover:bg-white/10 hover:text-white/70 transition-all disabled:opacity-40">
+                    {testLoading ? 'Testing…' : 'Test URL'}
+                  </button>
+                  {testResult && (
+                    <p className={`font-body text-xs ${testResult.ok ? 'text-green-400' : 'text-red-400'}`}>
+                      {testResult.ok ? '✓' : '✗'} {testResult.msg}
+                    </p>
+                  )}
+                </div>
+              )}
             </div>
             <div>
               <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-2">Colour</label>
