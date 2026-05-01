@@ -9,7 +9,7 @@ const ROTATION_OPTIONS = ['14 on / 7 off', '21 on / 7 off', '7 on / 7 off', '28 
 const JOB_OPTIONS = ['Heavy Equipment Operator', 'Process Operator', 'Pipefitter / Welder', 'Electrician / Instrumentation', 'Millwright / Mechanic', 'Labourer / General', 'Driver / Logistics', 'Camp Worker', 'Partner / Family', 'Other']
 
 function WorkerForm() {
-  const [form, setForm] = useState({ name: '', email: '', phone: '', job: '', rotation: '', company: '', employer: '', message: '' })
+  const [form, setForm] = useState({ name: '', email: '', phone: '', job: '', rotation: '', customRotation: '', company: '', employer: '', message: '' })
   const [sent, setSent] = useState(false)
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
@@ -80,6 +80,16 @@ function WorkerForm() {
             <option value="">Select your rotation</option>
             {ROTATION_OPTIONS.map(r => <option key={r} value={r}>{r}</option>)}
           </select>
+          {form.rotation === 'Custom / Other' && (
+            <input
+              type="text"
+              required
+              placeholder="e.g. 10 on / 4 off, 21 on / 14 off..."
+              value={form.customRotation}
+              onChange={e => set('customRotation', e.target.value)}
+              className="input-field mt-2"
+            />
+          )}
         </div>
         <div>
           <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-1.5">Employer / Contractor</label>
