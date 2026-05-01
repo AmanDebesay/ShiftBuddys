@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { ChevronLeft, ChevronRight, ArrowLeft, Plus, X, Trash2 } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ArrowLeft, Plus, X, Trash2, AlertCircle, Loader2, RefreshCw } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
 import { getDayPhase } from '../../lib/rotationUtils'
@@ -37,6 +37,8 @@ export default function CalendarPage() {
   const [viewMonth, setViewMonth] = useState(now.getMonth())
   const [selectedDay, setSelectedDay] = useState(todayStr)
   const [externalEvents, setExternalEvents] = useState({})
+  const [eventsLoading, setEventsLoading] = useState(false)
+  const [calErrors, setCalErrors] = useState({})
   const [showConnect, setShowConnect] = useState(false)
   const [newCal, setNewCal] = useState({ name: '', url: '', color: '#60a5fa' })
   const [savingCal, setSavingCal] = useState(false)
@@ -55,20 +57,28 @@ export default function CalendarPage() {
   }, [user, loading, router])
 
   const fetchEvents = useCallback(async (calUrls, year, month) => {
-    if (!calUrls?.length) return
+    if (!calUrls?.length) { setExternalEvents({}); return }
+    setEventsLoading(true)
     const from = new Date(year, month, 1).toISOString().split('T')[0]
-    const to = new Date(year, month + 1, 0).toISOString().split('T')[0]
+    const to   = new Date(year, month + 1, 0).toISOString().split('T')[0]
     const merged = {}
+    const errors = {}
     await Promise.allSettled(calUrls.map(async cal => {
       try {
-        const { events } = await fetch(`/api/ics-events?${new URLSearchParams({ url: cal.url, from, to })}`).then(r => r.json())
-        for (const ev of (events || [])) {
+        const res  = await fetch(`/api/ics-events?${new URLSearchParams({ url: cal.url, from, to })}`)
+        const data = await res.json()
+        if (data.error) { errors[cal.id] = data.error; return }
+        for (const ev of (data.events || [])) {
           if (!merged[ev.date]) merged[ev.date] = []
           merged[ev.date].push({ summary: ev.summary, calName: cal.name, color: cal.color })
         }
-      } catch {}
+      } catch (e) {
+        errors[cal.id] = 'Could not reach calendar'
+      }
     }))
     setExternalEvents(merged)
+    setCalErrors(errors)
+    setEventsLoading(false)
   }, [])
 
   useEffect(() => {
@@ -80,9 +90,15 @@ export default function CalendarPage() {
 
   const handleAddCalendar = async () => {
     if (!newCal.name || !newCal.url) return
-    if (!newCal.url.startsWith('https://')) { setCalError('URL must start with https://'); return }
+    // Normalize webcal:// → https://
+    const normalizedUrl = newCal.url.trim().replace(/^webcal:\/\//i, 'https://')
+    if (!normalizedUrl.startsWith('https://') && !normalizedUrl.startsWith('http://')) {
+      setCalError('URL must start with https:// or webcal://')
+      return
+    }
     setSavingCal(true); setCalError('')
-    const updated = [...(profile.calendar_urls || []), { id: Date.now().toString(), ...newCal }]
+    const calToAdd = { ...newCal, url: normalizedUrl }
+    const updated = [...(profile.calendar_urls || []), { id: Date.now().toString(), ...calToAdd }]
     const { error } = await supabase.from('profiles').update({ calendar_urls: updated }).eq('id', user.id)
     if (error) { setCalError(error.message); setSavingCal(false) }
     else {
@@ -159,12 +175,17 @@ export default function CalendarPage() {
         </div>
 
         {/* Calendar grid */}
-        <div className="glass rounded-3xl p-3 border border-white/8">
+        <div className="glass rounded-3xl p-3 border border-white/8 relative">
           <div className="grid grid-cols-7 mb-1">
             {DAY_LABELS.map(d => (
               <div key={d} className="text-center font-heading text-white/25 text-xs py-2">{d}</div>
             ))}
           </div>
+          {eventsLoading && profile.calendar_urls?.length > 0 && (
+            <div className="absolute top-2 right-2">
+              <Loader2 size={14} className="text-white/30 animate-spin" />
+            </div>
+          )}
           <div className="grid grid-cols-7 gap-1">
             {calDays.map(({ date, current }, idx) => {
               const ds = toDateStr(date)
@@ -270,20 +291,38 @@ export default function CalendarPage() {
         {/* Connected calendars */}
         {profile.calendar_urls?.length > 0 && (
           <div>
-            <p className="font-heading text-white/35 text-xs uppercase tracking-wider mb-2">Connected Calendars</p>
+            <div className="flex items-center justify-between mb-2">
+              <p className="font-heading text-white/35 text-xs uppercase tracking-wider">Connected Calendars</p>
+              <button onClick={() => fetchEvents(profile.calendar_urls, viewYear, viewMonth)}
+                className="flex items-center gap-1 text-white/25 hover:text-white/50 transition-colors text-xs font-heading">
+                <RefreshCw size={11} />
+                Refresh
+              </button>
+            </div>
             <div className="space-y-2">
-              {profile.calendar_urls.map(cal => (
-                <div key={cal.id} className="glass rounded-xl px-4 py-3 border border-white/8 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cal.color }} />
-                    <p className="font-heading font-medium text-white text-sm">{cal.name}</p>
+              {profile.calendar_urls.map(cal => {
+                const hasError = !!calErrors[cal.id]
+                return (
+                  <div key={cal.id} className={`glass rounded-xl px-4 py-3 border flex items-center justify-between ${hasError ? 'border-red-500/20' : 'border-white/8'}`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ background: cal.color }} />
+                      <div className="min-w-0">
+                        <p className="font-heading font-medium text-white text-sm">{cal.name}</p>
+                        {hasError && (
+                          <div className="flex items-center gap-1 mt-0.5">
+                            <AlertCircle size={11} className="text-red-400 flex-shrink-0" />
+                            <p className="font-body text-red-400/80 text-xs truncate">{calErrors[cal.id]}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <button onClick={() => handleRemoveCalendar(cal.id)}
+                      className="text-white/20 hover:text-red-400 transition-colors p-1 flex-shrink-0 ml-2">
+                      <Trash2 size={14} />
+                    </button>
                   </div>
-                  <button onClick={() => handleRemoveCalendar(cal.id)}
-                    className="text-white/20 hover:text-red-400 transition-colors p-1">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         )}
