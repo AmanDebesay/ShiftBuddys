@@ -1,0 +1,31 @@
+{
+  "name": "ShiftBuddys",
+  "short_name": "ShiftBuddys",
+  "description": "Built for the Patch. Built for Your Life.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0D2D4E",
+  "theme_color": "#0D2D4E",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/images/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg"
+    }
+  ],
+  "categories": ["productivity", "lifestyle", "utilities"]
+}
