@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 function Block({ value, label }) {
   return (
     <div className="countdown-block">
-      <span className="font-display text-5xl text-orange-400 leading-none animate-count-pulse">
+      <span className="font-display text-4xl text-orange-400 leading-none animate-count-pulse">
         {String(value).padStart(2, '0')}
       </span>
       <span className="font-body text-white/50 text-xs uppercase tracking-widest mt-1">{label}</span>
@@ -40,13 +40,13 @@ export default function CountdownWidget({ targetDays = 9 }) {
       <div className="text-center mb-4">
         <p className="font-heading text-white/60 text-xs uppercase tracking-widest">Home in</p>
       </div>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5">
         <Block value={timeLeft.days} label="Days" />
-        <span className="font-display text-3xl text-orange-500/60 mb-2">:</span>
+        <span className="font-display text-2xl text-orange-500/60 mb-2">:</span>
         <Block value={timeLeft.hours} label="Hrs" />
-        <span className="font-display text-3xl text-orange-500/60 mb-2">:</span>
+        <span className="font-display text-2xl text-orange-500/60 mb-2">:</span>
         <Block value={timeLeft.minutes} label="Min" />
-        <span className="font-display text-3xl text-orange-500/60 mb-2">:</span>
+        <span className="font-display text-2xl text-orange-500/60 mb-2">:</span>
         <Block value={timeLeft.seconds} label="Sec" />
       </div>
       <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">

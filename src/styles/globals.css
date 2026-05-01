@@ -159,8 +159,8 @@ select.input-field option {
 
 /* ─── Countdown widget ──────────────────────── */
 .countdown-block {
-  @apply flex flex-col items-center justify-center rounded-2xl px-5 py-4 glass;
-  min-width: 80px;
+  @apply flex flex-col items-center justify-center rounded-xl px-3 py-3 glass;
+  min-width: 58px;
 }
 
 /* ─── Keyframes already declared in tailwind ── */
