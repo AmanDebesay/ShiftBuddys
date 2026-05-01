@@ -38,7 +38,7 @@ const CHECKLIST_SECTIONS = [
     color: 'text-rose-400',
     items: [
       'Hug your people first — before unpacking',
-      'Let the kids show you what they've been up to',
+      "Let the kids show you what they've been up to",
       'Sleep in your own bed',
       'Eat a home-cooked meal together',
       'Avoid jumping straight into chores or fixing things',
@@ -64,7 +64,7 @@ const CHECKLIST_SECTIONS = [
     items: [
       'Grocery run together',
       'Check bills / finances',
-      'Schedule any appointments you've been putting off',
+      "Schedule any appointments you've been putting off",
       'Get your vehicle checked if needed',
       'Rest before you start tackling the to-do list',
     ],

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import Link from 'next/link'
 import {
   LogOut, Calendar, Users, MessageSquare, MapPin, ChevronRight,
-  Sun, Moon, RefreshCw, DollarSign, Heart, Home, ArrowLeftRight, Bot,
+  Sun, Moon, RefreshCw, DollarSign, Heart, Home, ArrowLeftRight, Bot, Tv,
 } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { useAuth } from '../../context/AuthContext'
@@ -274,6 +274,13 @@ export default function Dashboard() {
               </div>
               <p className="font-heading font-semibold text-white text-sm">AI Assistant</p>
               <p className="font-body text-orange-400/60 text-xs mt-1">Ask anything →</p>
+            </Link>
+            <Link href="/dashboard/entertainment" className="glass rounded-2xl p-5 border border-violet-500/20 hover:border-violet-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/15 border border-violet-500/30 flex items-center justify-center mb-3">
+                <Tv size={18} className="text-violet-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">Entertainment</p>
+              <p className="font-body text-violet-400/60 text-xs mt-1">Stream · Podcasts · Games →</p>
             </Link>
             <ComingSoonTile icon={ArrowLeftRight} label="Shift Swap"         sub="Post · Find · Confirm"     iconBg="bg-indigo-500/15" iconBorder="border-indigo-500/30" iconColor="text-indigo-400" />
             <ComingSoonTile icon={MessageSquare} label="Crew Chat"           sub="Coming soon"               iconBg="bg-purple-500/15" iconBorder="border-purple-500/30" iconColor="text-purple-400" />
