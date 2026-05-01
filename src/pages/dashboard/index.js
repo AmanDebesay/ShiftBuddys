@@ -244,7 +244,13 @@ export default function Dashboard() {
           <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Coming Next</p>
           <div className="grid grid-cols-2 gap-3">
             <ComingSoonTile icon={DollarSign}    label="Money Manager"       sub="Paycheck · RRSP · Budget"  iconBg="bg-yellow-500/15" iconBorder="border-yellow-500/30" iconColor="text-yellow-400" />
-            <ComingSoonTile icon={Heart}         label="Wellbeing"           sub="Mood · Sleep · Support"    iconBg="bg-rose-500/15"   iconBorder="border-rose-500/30"   iconColor="text-rose-400" />
+            <Link href="/dashboard/wellbeing" className="glass rounded-2xl p-5 border border-rose-500/20 hover:border-rose-500/40 transition-colors">
+              <div className="w-10 h-10 rounded-xl bg-rose-500/15 border border-rose-500/30 flex items-center justify-center mb-3">
+                <Heart size={18} className="text-rose-400" />
+              </div>
+              <p className="font-heading font-semibold text-white text-sm">Wellbeing</p>
+              <p className="font-body text-rose-400/60 text-xs mt-1">Check in today →</p>
+            </Link>
             <ComingSoonTile icon={Home}          label="Coming Home Mode"    sub="48-hr reintegration"       iconBg="bg-teal-500/15"   iconBorder="border-teal-500/30"   iconColor="text-teal-400" />
             <ComingSoonTile icon={ArrowLeftRight} label="Shift Swap"         sub="Post · Find · Confirm"     iconBg="bg-indigo-500/15" iconBorder="border-indigo-500/30" iconColor="text-indigo-400" />
           </div>
