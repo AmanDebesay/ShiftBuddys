@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { User, Mail, Lock, ArrowRight, Eye, EyeOff, Check } from 'lucide-react'
+import { ArrowRight, Eye, EyeOff, Check } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../context/AuthContext'
 
@@ -75,29 +75,22 @@ export default function Signup() {
         <form onSubmit={handleSubmit} className="glass rounded-3xl p-8 border border-white/8 flex flex-col gap-5">
           <div>
             <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-1.5">Your Name</label>
-            <div className="relative">
-              <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
-              <input required type="text" placeholder="Marcus Thompson"
-                value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
-                className="input-field pl-10" />
-            </div>
+            <input required type="text" placeholder="Marcus Thompson"
+              value={form.name} onChange={e => setForm(p => ({ ...p, name: e.target.value }))}
+              className="input-field" />
           </div>
           <div>
             <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-1.5">Email</label>
-            <div className="relative">
-              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
-              <input required type="email" placeholder="you@email.com"
-                value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                className="input-field pl-10" />
-            </div>
+            <input required type="email" placeholder="you@email.com"
+              value={form.email} onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+              className="input-field" />
           </div>
           <div>
             <label className="block font-heading text-white/60 text-xs uppercase tracking-wider mb-1.5">Password</label>
             <div className="relative">
-              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 pointer-events-none" />
               <input required type={showPw ? 'text' : 'password'} placeholder="Min. 8 characters"
                 value={form.password} onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
-                className="input-field pl-10 pr-10" />
+                className="input-field pr-10" />
               <button type="button" onClick={() => setShowPw(p => !p)}
                 className="absolute right-4 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
                 {showPw ? <EyeOff size={16} /> : <Eye size={16} />}
