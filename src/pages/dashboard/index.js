@@ -179,15 +179,15 @@ export default function Dashboard() {
 
         {/* Feature tiles */}
         <div>
-          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Coming Soon</p>
+          <p className="font-heading text-white/30 text-xs uppercase tracking-wider mb-3">Features</p>
           <div className="grid grid-cols-2 gap-3">
-            <div className="glass rounded-2xl p-5 border border-white/8">
+            <Link href="/dashboard/calendar" className="glass rounded-2xl p-5 border border-orange-500/20 hover:border-orange-500/40 transition-colors">
               <div className="w-10 h-10 rounded-xl bg-orange-500/15 border border-orange-500/30 flex items-center justify-center mb-3">
                 <Calendar size={18} className="text-orange-400" />
               </div>
               <p className="font-heading font-semibold text-white text-sm">Shift Calendar</p>
-              <p className="font-body text-white/30 text-xs mt-1">Full rotation view</p>
-            </div>
+              <p className="font-body text-orange-400/60 text-xs mt-1">View your rotation →</p>
+            </Link>
             <div className="glass rounded-2xl p-5 border border-white/8">
               <div className="w-10 h-10 rounded-xl bg-pink-500/15 border border-pink-500/30 flex items-center justify-center mb-3">
                 <Users size={18} className="text-pink-400" />
